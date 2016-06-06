@@ -37,23 +37,25 @@ cv2.destroyAllWindows()
 
 color = np.array([0,69,255])
 
-green = np.array([0,100,0])
+green = np.array([0,128,0])
 white = np.array([255,255,255])
 gray = np.array([128,128,128])
 yellow = np.array([255,255,0])
-red = np.array([0,100,0])
+red = np.array([255,0,0])
 cyan = np.array([0,255,255])
 maroon = np.array([128,0,0])
+black = np.array([0,0,0])
 
 out = cv2.inRange(src, color, color)
 
 screen_height, screen_width = out.shape
+connected_base = 20
 connected_thresh = screen_height / 24 #say 5% of screen_height
 
 res = cv2.bitwise_and(src,src, mask= out)
 
-# for i in range(15):
-# 	res[100, i] = green
+for i in range(15):
+	res[100, i] = green
 
 visited = [[-1 for i in range(screen_width)] for j in range(screen_height)]
 
@@ -62,48 +64,47 @@ line_count = 0
 lines = []
 
 for h in range(screen_height):
+	connected_thresh = max(1, int((h - .5 * screen_height) / (.5 * screen_height) * connected_base), 1)
 	for w in range(screen_width):
 		if out[h, w]:
 			
-			# for i in range(1, connected_thresh + 1):
-			# 	if visited[h][w] == -1:
-			# 		for j in range(max(0, h - i), min(screen_height, h + i + 1)):
-			# 			if w + i < screen_width and visited[j][w + i] > 0:
-			# 				lines[visited[j][w + i] - 1].append((h,w))
-			# 				visited[h][w] = visited[j][w + i]
-			# 				break
-			# 			elif w >= i and visited[j][w - i] > 0:
-			# 				lines[visited[j][w - i] - 1].append((h,w))
-			# 				visited[h][w] = visited[j][w - i]
-			# 				break
-			# 	if visited[h][w] == -1:
-			# 		for j in range(max(0, w - i), min(screen_width, w + i + 1)):
-			# 			if h + i < screen_height and visited[h + i][j] > 0:
-			# 				lines[visited[h + i][j] - 1].append((h,w))
-			# 				visited[h][w] = visited[h + i][j]
-			# 				break
-			# 			elif h >= i and visited[h - i][j] > 0:
-			# 				lines[visited[h - i][j] - 1].append((h,w))
-			# 				visited[h][w] = visited[h - i][j]
-			# 				break
-
-			lower_w = max(0, w - connected_thresh)
-			upper_w = min(screen_width, w + connected_thresh)
-			lower_h = max(0, h - connected_thresh)
-			upper_h = min(screen_height, h + connected_thresh)
-			for i in range(lower_h, upper_h):
+			for i in range(1, connected_thresh + 1):
 				if visited[h][w] == -1:
-					for j in range(lower_w, upper_w):
-						if visited[i][j] > 0:
-							lines[visited[i][j] - 1].append((h,w))
-							visited[h][w] = visited[i][j]
+					for j in range(max(0, h - i), min(screen_height, h + i + 1)):
+						if w + 2 * i - 1 < screen_width and visited[j][w + 2 * i - 1] > 0:
+							lines[visited[j][w + 2 * i - 1] - 1].append((h,w))
+							visited[h][w] = visited[j][w + 2 * i - 1]
 							break
+						if w + 2 * i < screen_width and visited[j][w + 2 * i] > 0:
+							lines[visited[j][w + 2 * i] - 1].append((h,w))
+							visited[h][w] = visited[j][w + 2 * i]
+							break
+						if w - 2 * i + 1 >= 0 and visited[j][w - 2 * i + 1] > 0:
+							lines[visited[j][w - 2 * i + 1] - 1].append((h,w))
+							visited[h][w] = visited[j][w - 2 * i + 1]
+							break
+						if w - 2 * i >= 0 and visited[j][w - 2 * i] > 0:
+							lines[visited[j][w - 2 * i] - 1].append((h,w))
+							visited[h][w] = visited[j][w - 2 * i]
+							break
+				if visited[h][w] == -1:
+					for j in range(max(0, w - 2 * i), min(screen_width, w + 2 * i + 1)):
+						if h + i < screen_height and visited[h + i][j] > 0:
+							lines[visited[h + i][j] - 1].append((h,w))
+							visited[h][w] = visited[h + i][j]
+							break
+						if h >= i and visited[h - i][j] > 0:
+							lines[visited[h - i][j] - 1].append((h,w))
+							visited[h][w] = visited[h - i][j]
+							break
+				else:
+					break
 			if visited[h][w] == -1:
 				lines.append([(h,w)])
 				line_count += 1
 				visited[h][w] = line_count
 		else:
-			visited[h][w] = 0
+			visited[h][w] = -1
 
 # for i in range(screen_height):
 # 	for j in range(screen_width):
@@ -121,8 +122,22 @@ for h in range(screen_height):
 # 			res[i,j] = cyan
 # 		elif visited[i][j] == 7:
 # 			res[i,j] = maroon
+# 		elif visited[i][j] == 8:
+# 			res[i,j] = green
+# 		elif visited[i][j] == 9:
+# 			res[i,j] = white
+# 		elif visited[i][j] == 10:
+# 			res[i,j] = gray
+# 		elif visited[i][j] == 11:
+# 			res[i,j] = np.array([255,0,255])
+# 		elif visited[i][j] == 12:
+# 			res[i,j] = red
+# 		elif visited[i][j] == 13:
+# 			res[i,j] = cyan
+# 		elif visited[i][j] == 14:
+# 			res[i,j] = maroon
 
-#### FIND MAX - MIN Y, FIND # OF PIxELS
+#### FIND MAX - MIN Y, FIND # OF PIXELS
 invalid_lines = []
 for i in range(len(lines)):
 	minimum = screen_height - 1
