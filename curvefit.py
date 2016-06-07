@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import sys
 
 # color is the specific road marking color output by SegNet
 color = np.array([0,69,255])
@@ -16,7 +17,10 @@ black = np.array([0,0,0])
 blue = np.array([255,0,0])
 magenta = np.array([255,0,255])
 
-inputFilename = "test1seg.png"
+if len(sys.argv) != 2:
+	print "Usage: ./curvefit.py image.png"
+	sys.exit()
+inputFilename = sys.argv[1]
 outputFilename = "Output.png"
 src = cv2.imread(inputFilename, 1)
 cv2.destroyAllWindows()
