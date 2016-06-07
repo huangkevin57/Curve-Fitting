@@ -16,7 +16,7 @@ black = np.array([0,0,0])
 blue = np.array([255,0,0])
 magenta = np.array([255,0,255])
 
-inputFilename = "test2seg.png"
+inputFilename = "test1seg.png"
 outputFilename = "Output.png"
 src = cv2.imread(inputFilename, 1)
 cv2.destroyAllWindows()
